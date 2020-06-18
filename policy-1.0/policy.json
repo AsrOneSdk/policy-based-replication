@@ -101,7 +101,7 @@
               "vmDataDiskIds": "[array(parameters('dataDiskIds').rawValue)]",
               "vmDiskCount": "[add(length(variables('vmDataDiskIds')), int(1))]",
               "avSetTemplateName": "[concat('RecoveryAvSet-', last(split(parameters('vmId'), '/')))]",
-              "replicationProtectedItemTemplateName": "[concat('ASR-', parameters('sourceResourceGroupName'), '-', last(split(parameters('vmId'), '/')), '-', guid(parameters('vmId')))]",
+              "replicationProtectedItemTemplateName": "[concat('ASR-', parameters('sourceResourceGroupName'), '-', last(split(parameters('vmId'), '/')))]",
               "replicationProtectedItemTemplateName64": "[substring(variables('replicationProtectedItemTemplateName'), 0, 64)]",
               "sourceResourceGroupId": "[resourceGroup().id]",
               "vaultId": "[resourceId(parameters('vaultResourceGroupName'), 'Microsoft.RecoveryServices/vaults', parameters('vaultName'))]",
@@ -197,8 +197,8 @@
                       }
                     ],
                     "outputs": {
-                      "replicationJobsUrl": {
-                        "value": "[concat(variables('portalLinkPrefix'), variables('vaultId'), '/', variables('siteRecoveryJobs'))]",
+                      "vmName": {
+                        "value": "[last(split(parameters('vmId'), '/'))]",
                         "type": "string"
                       },
                       "availabilitySetUrl": {

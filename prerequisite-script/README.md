@@ -77,7 +77,7 @@
     - Vault ResourceGroup Deployments
       - Azure portal link to the list of deployments made under the vault resource group. This includes the deployments made by the policy
         - Policy deployment - default policy deployment that further makes the required deployment per VM.
-        - Replication protected item deployment - ASR deployment to protect the VM. The naming convention - ASR-\<source-RG\>-\<VM-name\>-\<GUID\>
+        - Replication protected item deployment - ASR deployment to protect the VM. The naming convention - ASR-\<source-RG\>-\<VM-name\>
         - Recovery AvSet deployment - deployment that triggers AvSet creation, if needed.
       - The user can use this link to identify deployments made and recognize failures in case a VM doesn't show up as protected under the vault.
     - Target ResourceGroup Deployments

@@ -400,7 +400,7 @@ class ConstantStrings
     static [string] $recoveryNetworkSuffix = "-vnet"
     static [string] $replicationJobs = "replicationJobs"
     static [string] $replicationProtectedItems = "replicationProtectedItems"
-    static [string] $resourceDeploymentFormat = "ASR-<ResourceGroupName>-<VMName>-<GUID>"
+    static [string] $resourceDeploymentFormat = "ASR-<ResourceGroupName>-<VMName>"
     static [string] $scopes = "scopes"
     static [string] $storageAccountRegex = "[^a-zA-Z0-9]"
     static [int] $storageServiceMaxLength = 24
