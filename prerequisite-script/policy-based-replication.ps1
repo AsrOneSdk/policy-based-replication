@@ -1396,6 +1396,12 @@ function New-PolicyAssignment()
 
     if ($null -ne $assignedPolicies)
     {
+        
+        throw [Errors]::AbortingPolicyAssignment($assignedPolicies.Name)
+
+        <##########################################################################################
+        # Uncomment the following to allow multiple site recovery policies at same scope.
+
         $title = "`nThe following assignments already exist with the same policy definition " + `
         "and scope:`n" + ($assignedPolicies.Name -Join ",`n")
         $message = "`nDo you want to proceed with the policy assignment?"
@@ -1409,6 +1415,8 @@ function New-PolicyAssignment()
         {
             throw [Errors]::AbortingPolicyAssignment($assignedPolicies.Name)
         }
+
+        ##########################################################################################>
     }
 
     $policyAssignment = New-AzPolicyAssignment -Name $policyAssignmentName -Description `
