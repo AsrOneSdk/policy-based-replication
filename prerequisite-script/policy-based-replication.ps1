@@ -426,6 +426,9 @@ class PolicyParameter
 
 #Region Errors
 
+### <summary>
+### Class to maintain all the errors.
+### </summary>
 class Errors
 {
     ### <summary>
@@ -548,7 +551,7 @@ class Errors
         return "Aborting policy assignment as the following policy assignments already exist " + `
         "with the same definition and scope - `n" + ($policyAssignmentNames -Join ",`n")
     }
-    
+
     ### <summary>
     ###  Role assignment failure leading to manual creation.
     ### </summary>
@@ -1277,12 +1280,12 @@ function Add-RoleAssignments()
         $message = "Creating new role assignments for managed identity with PrincipalId:" + `
             $objectId + "`n"
 
-        Write-Host -ForegroundColor Green $message        
+        Write-Host -ForegroundColor Green $message
         $OutputLogger.Log(
             $MyInvocation,
             $message,
             [LogType]::INFO)
-        
+
         # Mandated sleep added to ensure service principal info is available/synced by AAD.
         Start-Sleep -Seconds $mandatedSleepInSeconds
 
@@ -1305,9 +1308,9 @@ function Add-RoleAssignments()
                 $message = "Role assignment addition failed due to -"
                 $message += "`n$(Out-String -InputObject $PSItem)`n"
                 $message += "Retrying role assignment addition.`n"
-                
-                Write-Host -ForegroundColor Yellow -BackgroundColor Black $message 
-            
+
+                Write-Host -ForegroundColor Yellow -BackgroundColor Black $message
+
                 $OutputLogger.Log($MyInvocation, $message, [LogType]::WARNING)
             }
         }
@@ -1323,10 +1326,10 @@ function Add-RoleAssignments()
                     $sourceResourceGroupName,
                     $vaultResourceGroupName,
                     $targetResourceGroupName)
-            
+
             Write-Host -ForegroundColor Green "`nRole assignment addition was unsuccessful. " `
                 "Please check the following message with possible workarounds:"
-            Write-Host -ForegroundColor Green $message 
+            Write-Host -ForegroundColor Green $message
 
         }
     }
@@ -1396,7 +1399,7 @@ function New-PolicyAssignment()
 
     if ($null -ne $assignedPolicies)
     {
-        
+
         throw [Errors]::AbortingPolicyAssignment($assignedPolicies.Name)
 
         <##########################################################################################
@@ -1405,8 +1408,8 @@ function New-PolicyAssignment()
         $title = "`nThe following assignments already exist with the same policy definition " + `
         "and scope:`n" + ($assignedPolicies.Name -Join ",`n")
         $message = "`nDo you want to proceed with the policy assignment?"
-        $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Yes"
-        $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", "No"
+        $yes = [System.Management.Automation.Host.ChoiceDescription]::New("&Yes", "Yes")
+        $no = [System.Management.Automation.Host.ChoiceDescription]::New("&No", "No")
         $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
 
         $choice=$host.ui.PromptForChoice($title, $message, $options, 1)
@@ -1415,7 +1418,6 @@ function New-PolicyAssignment()
         {
             throw [Errors]::AbortingPolicyAssignment($assignedPolicies.Name)
         }
-
         ##########################################################################################>
     }
 
@@ -1440,21 +1442,21 @@ function New-PolicyAssignment()
 ### </summary>
 function Log-ScriptParameters()
 {
-    try 
+    try
     {
         $commandName = $PSCmdlet.MyInvocation.InvocationName;
         $parameterList = (Get-Command -Name $CommandName).Parameters;
-    
+
         foreach ($parameter in $parameterList) {
             $parameters = Get-Variable -Name $Parameter.Values.Name -ErrorAction SilentlyContinue;
         }
-    
+
         $OutputLogger.LogObject(
             $MyInvocation,
             $parameters,
-            [LogType]::INFO)        
+            [LogType]::INFO)
     }
-    catch 
+    catch
     {
         Write-Warning "Unable to log script parameters."
     }
@@ -1540,7 +1542,7 @@ function New-PolicyBasedReplicationSetup()
 {
     Write-Host -ForegroundColor Green "Starting policy based replication setup."
 
-    $policyParams = New-Object System.Collections.Hashtable
+    $policyParams = [System.Collections.Hashtable]::New()
 
     Set-Context
     Confirm-ScriptParameters -SourceLocation ([ref]$sourceLocation) -TargetLocation `
@@ -1568,7 +1570,7 @@ $OutputLogger.Log(
 try
 {
     Log-ScriptParameters
-    
+
     New-PolicyBasedReplicationSetup
 }
 catch
