@@ -39,4 +39,4 @@
 
 - Sample output
 
-![Output Snip](output-snip.png)
+![Output Snip](output-snip.PNG)
