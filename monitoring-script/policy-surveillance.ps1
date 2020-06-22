@@ -84,6 +84,8 @@ Class UserInterface
     ### <param name="policyAssignment">Policy assignment.</param>
     UserInterface($subscriptionId, $resourceGroupName, $policyAssignment)
     {
+        #Region Prereq
+
         $complianceDetailedBladeScope = '["/' + [ConstantStrings]::subscriptions + '/' + `
             $subscriptionId + '"]'
         $assignmentCompliancePage =
@@ -95,10 +97,18 @@ Class UserInterface
             [uri]::EscapeDataString($policyAssignment.ResourceId) + "/" + `
             [ConstantStrings]::scopes + "/" + [uri]::EscapeDataString($complianceDetailedBladeScope)
 
+        $policyAssignmentSummary = Get-PolicyAssignmentSummary -PolicyAssignment $policyAssignment
+        #EndRegion
+
+        #Region Form - Setup
+
         $this.PolicyForm                 = [System.Windows.Forms.Form]::New()
         $this.PolicyForm.ClientSize      = '900,400'
         $this.PolicyForm.text            = "Policy Surveillance"
         $this.PolicyForm.BackColor       = "#d6e6f5"
+        #EndRegion
+
+        #Region MsLogo (Not in use)
 
         $MsLogo = [System.Windows.Forms.PictureBox]::New()
         $MsLogo.width = 140
@@ -106,6 +116,9 @@ Class UserInterface
         $MsLogo.location = [System.Drawing.Point]::New(745, 20)
         $MsLogo.imageLocation = [ConstantStrings]::microsoftLogoLink
         $MsLogo.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+        #EndRegion
+
+        #Region Subscription
 
         $SubscriptionIdLabel             = [System.Windows.Forms.Label]::New()
         $SubscriptionIdLabel.text        = "SubscriptionId: "
@@ -123,13 +136,16 @@ Class UserInterface
         $SubscriptionIdValueLabel.height = 12
         $SubscriptionIdValueLabel.location  = [System.Drawing.Point]::New(160,20)
         $SubscriptionIdValueLabel.ForeColor  = "#143855"
+        #EndRegion
+
+        #Region Resource group
 
         $ResourceGroupNameLabel          = [System.Windows.Forms.Label]::New()
         $ResourceGroupNameLabel.text     = "ResourceGroupName: "
         $ResourceGroupNameLabel.AutoSize = $true
         $ResourceGroupNameLabel.width    = 100
         $ResourceGroupNameLabel.height   = 12
-        $ResourceGroupNameLabel.location = [System.Drawing.Point]::New(15, 50)
+        $ResourceGroupNameLabel.location = [System.Drawing.Point]::New(15, 40)
         $ResourceGroupNameLabel.Font     = 'style=Bold'
         $ResourceGroupNameLabel.ForeColor  = "#143855"
 
@@ -138,15 +154,18 @@ Class UserInterface
         $ResourceGroupNameValueLabel.AutoSize = $true
         $ResourceGroupNameValueLabel.width = 100
         $ResourceGroupNameValueLabel.height = 12
-        $ResourceGroupNameValueLabel.location = [System.Drawing.Point]::New(160, 50)
+        $ResourceGroupNameValueLabel.location = [System.Drawing.Point]::New(160, 40)
         $ResourceGroupNameValueLabel.ForeColor = "#143855"
+        #EndRegion
+
+        #Region Policy Assignment
 
         $PolicyAssignmentLabel           = [System.Windows.Forms.Label]::New()
         $PolicyAssignmentLabel.text      = "PolicyAssignment: "
         $PolicyAssignmentLabel.AutoSize  = $true
         $PolicyAssignmentLabel.width     = 100
         $PolicyAssignmentLabel.height    = 12
-        $PolicyAssignmentLabel.location  = [System.Drawing.Point]::New(15, 80)
+        $PolicyAssignmentLabel.location  = [System.Drawing.Point]::New(15, 60)
         $PolicyAssignmentLabel.Font      = 'style=Bold'
         $PolicyAssignmentLabel.ForeColor = "#143855"
 
@@ -157,7 +176,7 @@ Class UserInterface
         $PolicyAssignmentLinkLabel.AutoSize = $true
         $PolicyAssignmentLinkLabel.width = 100
         $PolicyAssignmentLinkLabel.height = 12
-        $PolicyAssignmentLinkLabel.location = [System.Drawing.Point]::New(160, 80)
+        $PolicyAssignmentLinkLabel.location = [System.Drawing.Point]::New(160, 60)
         $PolicyAssignmentLinkLabel.Font = 'style=Underline'
         $PolicyAssignmentLinkLabel.ForeColor = "#143855"
         $PolicyAssignmentLinkLabel.Links.Add(
@@ -168,13 +187,37 @@ Class UserInterface
             {
                 [System.Diagnostics.Process]::Start($this.Links[0].LinkData)
             })
+        #EndRegion
+
+        #Region Policy Assignment Summary - non-compliant resources
+
+        $NonCompliantResourcesLabel          = [System.Windows.Forms.Label]::New()
+        $NonCompliantResourcesLabel.text     = "Non-Compliant Resources: "
+        $NonCompliantResourcesLabel.AutoSize = $true
+        $NonCompliantResourcesLabel.width    = 100
+        $NonCompliantResourcesLabel.height   = 12
+        $NonCompliantResourcesLabel.location = [System.Drawing.Point]::New(15, 80)
+        $NonCompliantResourcesLabel.Font     = 'style=Bold'
+        $NonCompliantResourcesLabel.ForeColor  = "#143855"
+
+        $NonCompliantResourcesValueLabel     = [System.Windows.Forms.Label]::New()
+        $NonCompliantResourcesValueLabel.text  =
+            $policyAssignmentSummary.Results.NonCompliantResources
+        $NonCompliantResourcesValueLabel.AutoSize = $true
+        $NonCompliantResourcesValueLabel.width = 100
+        $NonCompliantResourcesValueLabel.height = 12
+        $NonCompliantResourcesValueLabel.location = [System.Drawing.Point]::New(160, 80)
+        $NonCompliantResourcesValueLabel.ForeColor = "#143855"
+        #EndRegion
+
+        #Region Policy Remediation
 
         $PolicyRemediationLabel           = [System.Windows.Forms.Label]::New()
         $PolicyRemediationLabel.text      = "Policy Remediation: "
         $PolicyRemediationLabel.AutoSize  = $true
         $PolicyRemediationLabel.width     = 100
         $PolicyRemediationLabel.height    = 12
-        $PolicyRemediationLabel.location  = [System.Drawing.Point]::New(15, 110)
+        $PolicyRemediationLabel.location  = [System.Drawing.Point]::New(15, 100)
         $PolicyRemediationLabel.Font      = 'style=Bold'
         $PolicyRemediationLabel.ForeColor = "#143855"
 
@@ -185,7 +228,7 @@ Class UserInterface
         $PolicyRemediationLinkLabel.AutoSize = $true
         $PolicyRemediationLinkLabel.width = 100
         $PolicyRemediationLinkLabel.height = 12
-        $PolicyRemediationLinkLabel.location = [System.Drawing.Point]::New(160, 110)
+        $PolicyRemediationLinkLabel.location = [System.Drawing.Point]::New(160, 100)
         $PolicyRemediationLinkLabel.Font = 'style=Underline'
         $PolicyRemediationLinkLabel.ForeColor = "#143855"
         $PolicyRemediationLinkLabel.Links.Add(
@@ -196,15 +239,9 @@ Class UserInterface
             {
                 [System.Diagnostics.Process]::Start($this.Links[0].LinkData)
             })
+        #EndRegion
 
-        $ResourceGroupNameValueLabel     = [System.Windows.Forms.Label]::New()
-        $ResourceGroupNameValueLabel.text  = $resourceGroupName
-        $ResourceGroupNameValueLabel.AutoSize = $true
-        $ResourceGroupNameValueLabel.width = 100
-        $ResourceGroupNameValueLabel.height = 12
-        $ResourceGroupNameValueLabel.location = [System.Drawing.Point]::New(160, 50)
-        $ResourceGroupNameValueLabel.Font = 'Calibri,10'
-        $ResourceGroupNameValueLabel.ForeColor = "#143855"
+        #Region VM Info GridView
 
         $this.VmInfoGridView                   = [System.Windows.Forms.DataGridView]::New()
         $this.VmInfoGridView.width             = 900
@@ -229,60 +266,65 @@ Class UserInterface
         $this.VmInfoGridView.Anchor           = 'bottom,left'
         $this.VmInfoGridView.location         = [System.Drawing.Point]::New(0, 150)
 
-        $this.VmInfoGridView.Add_CellClick({
-            $value = $this.Rows[$_.RowIndex].Cells[$_.ColumnIndex].ToolTipText
-
-            # Error popup
-            if ($_.ColumnIndex -ne 5)
+        $this.VmInfoGridView.Add_CellClick(
             {
-                return
-            }
 
-            if ([string]::IsNullOrEmpty($value))
+                $value = $this.Rows[$_.RowIndex].Cells[$_.ColumnIndex].ToolTipText
+
+                # Error popup
+                if ($_.ColumnIndex -ne 5)
+                {
+                    return
+                }
+
+                if ([string]::IsNullOrEmpty($value))
+                {
+                    return
+                }
+
+                $popUpForm              = [System.Windows.Forms.Form]::New()
+                $popUpForm.ClientSize   = "300,300"
+                $popUpForm.text         = "Errors"
+                $popUpForm.BackColor    = "#d6e6f5"
+                $errorBox               = [System.Windows.Forms.TextBox]::New()
+                $errorBox.Multiline     = $true
+                $errorBox.ScrollBars    = [System.Windows.Forms.ScrollBars]::Vertical
+                $errorBox.Height        = 280
+                $errorBox.Width         = 250
+                $errorBox.Location      = [System.Drawing.Point]::New(25, 10)
+                $errorBox.WordWrap      = $true
+                $errorBox.ReadOnly      = $true
+                $errorBox.Text          = $value
+
+                $popUpForm.Controls.Add($errorBox)
+                $popUpForm.ShowDialog()
+            })
+        $this.VmInfoGridView.Add_CellContentClick(
             {
-                return
-            }
+                $value = $this.Rows[$_.RowIndex].Cells[$_.ColumnIndex].ToolTipText
 
-            $popUpForm              = [System.Windows.Forms.Form]::New()
-            $popUpForm.ClientSize   = "300,300"
-            $popUpForm.text         = "Errors"
-            $popUpForm.BackColor    = "#d6e6f5"
-            $errorBox               = [System.Windows.Forms.TextBox]::New()
-            $errorBox.Multiline     = $true
-            $errorBox.ScrollBars    = [System.Windows.Forms.ScrollBars]::Vertical
-            $errorBox.Height        = 280
-            $errorBox.Width         = 250
-            $errorBox.Location      = [System.Drawing.Point]::New(25, 10)
-            $errorBox.WordWrap      = $true
-            $errorBox.ReadOnly      = $true
-            $errorBox.Text          = $value
-
-            $popUpForm.Controls.Add($errorBox)
-            $popUpForm.ShowDialog()
-        })
-
-        $this.VmInfoGridView.Add_CellContentClick({
-            $value = $this.Rows[$_.RowIndex].Cells[$_.ColumnIndex].ToolTipText
-
-            if (-not $value.ToLower().StartsWith([ConstantStrings]::portalResourceLinkPrefix))
-            {
-                return
-            }
-            else
-            {
-                [System.Diagnostics.Process]::Start($value)
-            }
-        })
+                if (-not $value.ToLower().StartsWith([ConstantStrings]::portalResourceLinkPrefix))
+                {
+                    return
+                }
+                else
+                {
+                    [System.Diagnostics.Process]::Start($value)
+                }
+            })
+        #EndRegion
 
         $this.PolicyForm.Controls.AddRange(
             @(
-                #$MsLogo,
+                #$MsLogo, # Commenting this for now.
                 $SubscriptionIdLabel,
                 $SubscriptionIdValueLabel,
                 $ResourceGroupNameLabel,
                 $ResourceGroupNameValueLabel,
                 $PolicyAssignmentLabel,
                 $PolicyAssignmentLinkLabel,
+                $NonCompliantResourcesLabel,
+                $NonCompliantResourcesValueLabel,
                 $PolicyRemediationLabel,
                 $PolicyRemediationLinkLabel
             )
@@ -705,7 +747,9 @@ class ErrorStrings
         return "No policy assignment corresponding to definition - '$definitionName', could " +
             "not be found under resource group - '$resourceGroupName', in subscription - " +
             "'$subscriptionId'. Run the script located at " +
-            "'$([ConstantStrings]::policyScriptUrl)' to define and assign policy for replication."
+            "'$([ConstantStrings]::policyScriptUrl)' to define and assign policy for " +
+            "replication. In case you've just run the script, wait up to 30 mins for the policy " +
+            "to start."
     }
 
     ### <summary>
@@ -1307,13 +1351,14 @@ function Log-ScriptParameters()
 function Log-PolicyInformation($policyAssignment)
 {
     $policyParams = $policyAssignment.Properties.Parameters
+    $policyAssignmentSummary = Get-PolicyAssignmentSummary -PolicyAssignment $policyAssignment
 
     Write-Host -ForegroundColor Green "Policy assignment found:"
     Write-Host -ForegroundColor Green "`nPolicy Assignment - $($policyAssignment.Name)"
     Write-Host -ForegroundColor Green "Resource group - $($policyAssignment.ResourceGroupName)"
     Write-Host -ForegroundColor Green "Vault Id - $($policyParams.VaultId.Value)"
     Write-Host -ForegroundColor Green "Source region - $($policyParams.SourceRegion.Value)"
-    Write-Host -ForegroundColor Green "Target region - $($policyParams.TargetRegion.Value)`n"
+    Write-Host -ForegroundColor Green "Target region - $($policyParams.TargetRegion.Value)"
 
     $OutputLogger.Log(
         $MyInvocation,
@@ -1324,6 +1369,29 @@ function Log-PolicyInformation($policyAssignment)
         $MyInvocation,
         $policyParams,
         [LogType]::OUTPUT)
+
+    if ($null -eq $policyAssignmentSummary)
+    {
+        $message = "`nCouldn't locate the summary for policy assignment - " +
+            "$($policyAssignment.Name)"
+
+        Write-Host -ForegroundColor Yellow $message
+        $OutputLogger.Log(
+            $MyInvocation,
+            $message,
+            [LogType]::WARNING)
+    }
+    else
+    {
+        Write-Host -ForegroundColor Green "Non-compliant resources -" `
+            "$($policyAssignmentSummary.Results.NonCompliantResources)"
+        $OutputLogger.LogObject(
+            $MyInvocation,
+            $policyAssignmentSummary,
+            [LogType]::OUTPUT)
+    }
+
+    Write-Host "`n"
 }
 
 ### <summary>
@@ -1386,27 +1454,29 @@ function Log-VirtualMachineInformation($vmInfoList)
 }
 #EndRegion
 
-#Region Prereq
+#Region Policy
 
 ### <summary>
-### Sets Azure context.
+### Gets the policy assignment summary.
 ### </summary>
-function Set-Context()
+### <param name="policyAssignment">Policy assignment.</param>
+### <returns>Policy assignment summary.</returns>
+function Get-PolicyAssignmentSummary($policyAssignment)
 {
-    $context = Get-AzContext
+    $policySummary = Get-AzPolicyStateSummary -ErrorAction Ignore -PolicyDefinitionName `
+        $(Extract-ResourceNameFromId -ArmId $policyAssignment.Properties.policyDefinitionId)
 
-    if ($null -eq $context)
+    $policyAssignmentSummary = $null
+
+    if ($null -ne $policySummary)
     {
-        $suppressOutput = Login-AzAccount
+        $policyAssignmentSummary = $policySummary.PolicyAssignments | `
+            Where-Object {
+                $_.PolicyAssignmentId.Trim('/') -like $policyAssignment.ResourceId.Trim('/')
+            }
     }
 
-    $context = Get-AzContext
-    $OutputLogger.Log(
-        $MyInvocation,
-        "User context set - $($context.Account.Id)($($context.Account.Type)).",
-        [LogType]::INFO)
-
-    $suppressOutput = Select-AzSubscription -SubscriptionId $subscriptionId
+    return $policyAssignmentSummary
 }
 
 ### <summary>
@@ -1449,6 +1519,30 @@ function Get-PolicyAssignment([string] $subscriptionId, [string] $sourceResource
     Log-PolicyInformation -PolicyAssignment $policyAssignment
 
     return $policyAssignment
+}
+#EndRegion
+
+#Region Prereq
+
+### <summary>
+### Sets Azure context.
+### </summary>
+function Set-Context()
+{
+    $context = Get-AzContext
+
+    if ($null -eq $context)
+    {
+        $suppressOutput = Login-AzAccount
+    }
+
+    $context = Get-AzContext
+    $OutputLogger.Log(
+        $MyInvocation,
+        "User context set - $($context.Account.Id)($($context.Account.Type)).",
+        [LogType]::INFO)
+
+    $suppressOutput = Select-AzSubscription -SubscriptionId $subscriptionId
 }
 #EndRegion
 
