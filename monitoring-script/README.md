@@ -19,7 +19,7 @@
 - name="**_subscriptionId_**" - **Mandatory** parameter defining the subscription Id.
 - name="**_sourceResourceGroupName_**" - **Mandatory** parameter defining the source resource group name. The policy assignment will be searched at this resource group's scope.
 - name="**_enableLog_**" - **Optional** switch parameter indicating whether information needs to be logged into a file. **Default value used** - False.
-- name="**_enableGUI_**" - **Optional** switch parameter indicating whether the user wants the information to be presented in a GUI **Default value used** - False.
+- name="**_enableGUI_**" - **Optional** switch parameter indicating whether the user wants the information to be presented in a GUI. **Default value used** - False.
 - name="**_logFileLocation_**" - **Optional** parameter defining an explicit script log file location. **Default value used** - script file location.
 
 ## Example
