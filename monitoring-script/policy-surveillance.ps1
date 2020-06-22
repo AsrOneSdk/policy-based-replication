@@ -303,7 +303,7 @@ Class UserInterface
             {
                 $value = $this.Rows[$_.RowIndex].Cells[$_.ColumnIndex].ToolTipText
 
-                if (-not $value.ToLower().StartsWith([ConstantStrings]::portalResourceLinkPrefix))
+                if (-not $value.ToLower().StartsWith([ConstantStrings]::portalLinkPrefix))
                 {
                     return
                 }
@@ -676,6 +676,7 @@ class Logger
 
 class ConstantStrings
 {
+    static [string] $a2aProvider = "A2A"
     static [string] $apiVersion = "api-version"
     static [string] $authHeader = "authorization"
     static [string] $contentTypeJson ="application/json"
@@ -691,10 +692,16 @@ class ConstantStrings
     static [string] $policyDeploymentPrefix = "ASR-"
     static [string] $policyScriptUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
         "policy-based-replication/master/prerequisite-script/policy-based-replication.ps1"
+    static [string] $portalDeploymentDetailsBladePrefix = "https://portal.azure.com/" + `
+        "#blade/HubsExtension/DeploymentDetailsBlade/outputs/id/"
+    static [string] $portalLinkPrefix = "https://portal.azure.com/"
     static [string] $portalPolicyCreateRemediationTaskBladePrefix = "https://portal.azure.com/" + `
-            "#blade/Microsoft_Azure_Policy/CreateRemediationTaskBlade/assignmentId/"
+        "#blade/Microsoft_Azure_Policy/CreateRemediationTaskBlade/assignmentId/"
     static [string] $portalPolicyDetailedComplianceBladePrefix = "https://portal.azure.com/" + `
         "#blade/Microsoft_Azure_Policy/PolicyComplianceDetailedBlade/id/"
+    static [string] $portalReplicationProtectedItemBladePrefix = "https://portal.azure.com/" + `
+        "#blade/Microsoft_Azure_RecoveryServices/ReplicationProtectedItemSettingsMenuBlade/" + `
+        "overviewmenuitem/replicationProtectedItemId/"
     static [string] $portalResourceLinkPrefix = "https://portal.azure.com/" + `
         "#@microsoft.onmicrosoft.com/resource"
     static [string] $powershellClientId = "1950a258-227b-4e31-a9cf-717495945fc2"
@@ -702,7 +709,9 @@ class ConstantStrings
     static [string] $powershellAuthorityUriPrefix = "https://login.windows.net/"
     static [string] $providers = "providers"
     static [string] $replicationEligibilityResults = "replicationEligibilityResults"
+    static [string] $replicationProtectedItemName = "replicationProtectedItemName"
     static [string] $replicationProtectedItems = "replicationProtectedItems"
+    static [string] $replicationProviderName = "replicationProviderName"
     static [string] $resourceGroups = "resourceGroups"
     static [string] $resourceLinks = "links"
     static [string] $resourceLinksApiVersion = "2016-09-01"
@@ -1075,13 +1084,17 @@ class VirtualMachine
         if (-not [string]::IsNullOrEmpty($this.protectedItemId))
         {
             $this.protectedItemPortalUrl =
-                [ConstantStrings]::portalResourceLinkPrefix + "/" + $this.protectedItemId.Trim('/')
+                [ConstantStrings]::portalReplicationProtectedItemBladePrefix + `
+                [uri]::EscapeDataString('/' + $this.protectedItemId.Trim('/')) + "/" + `
+                [ConstantStrings]::replicationProtectedItemName + "/" + $this.name + "/" + `
+                [ConstantStrings]::replicationProviderName + "/" + [ConstantStrings]::a2aProvider
         }
 
         if (-not [string]::IsNullOrEmpty($this.deploymentId))
         {
             $this.deploymentPortalUrl =
-                [ConstantStrings]::portalResourceLinkPrefix + "/" + $this.deploymentId.Trim('/')
+                [ConstantStrings]::portalDeploymentDetailsBladePrefix + `
+                [uri]::EscapeDataString('/' + $this.deploymentId.Trim('/'))
         }
     }
 
@@ -1717,11 +1730,11 @@ function Get-VirtualMachineInformation(
 
         if ($null -ne $correspondingLink)
         {
-            $vmInfoList[$index].protectedItemId = $correspondingLink.TargetId.Trim('/')
+            $vmInfoList[$index].protectedItemId = $correspondingLink.TargetId
 
             if (($null -ne $correspondingProtectedItem) -and `
                 ($correspondingProtectedItem.Id.Trim('/') -notlike `
-                    $vmInfoList[$index].protectedItemId))
+                    $vmInfoList[$index].protectedItemId.Trim('/')))
             {
                 # Unexpected code path.
                 throw [ErrorStrings]::InconsistentProtectedItemInformation(
