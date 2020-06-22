@@ -859,7 +859,7 @@ class ErrorStrings
 Enum ErrorType
 {
     ### <summary>
-    ###  Error type is EnableProtectionFailure.
+    ###  Error type is EnableProtectionError.
     ### </summary>
     EnableProtectionError = 1
 
@@ -1581,7 +1581,7 @@ function Get-AsrDeployment($deployment)
 
         $deploymentError =
             [Error]::New(
-                [ErrorType]::EnableProtectionFailure,
+                [ErrorType]::EnableProtectionError,
                 $deployment.CorrelationId,
                 $operation.Properties.StatusMessage.Error.Code,
                 $operation.Properties.StatusMessage.Error.Message,
