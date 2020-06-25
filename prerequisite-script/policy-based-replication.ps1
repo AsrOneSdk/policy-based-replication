@@ -954,7 +954,7 @@ function New-ReplicationProtectionContainer()
     if ($null -eq $sourceContainer)
     {
         Write-Host -ForegroundColor Green "Creating a new replication container -" `
-            $sourceContainerName", under fabric - "$sourceFabric.Name"."
+            $sourceContainerName", under fabric - "$($sourceFabric.Name)"."
 
         $isNewSourceContainer = $true
         $sourceJob = New-AzRecoveryServicesAsrProtectionContainer -Name $sourceContainerName `
@@ -964,7 +964,7 @@ function New-ReplicationProtectionContainer()
     if ($null -eq $targetContainer)
     {
         Write-Host -ForegroundColor Green "Creating a new replication container -" `
-            $targetContainerName", under fabric - "$targetFabric.Name"."
+            $targetContainerName", under fabric - "$($targetFabric.Name)"."
 
         $isNewTargetContainer = $true
         $targetJob = New-AzRecoveryServicesAsrProtectionContainer -Name $targetContainerName `
@@ -1493,7 +1493,7 @@ function Log-AdditionalURLs()
     $urlOutput += "`n"
 
 
-    Write-Host -ForegroundColor Green "Additional URLs if required - Check the github ReadMe " `
+    Write-Host -ForegroundColor Green "`nAdditional URLs if required - Check the github ReadMe" `
         "for details regarding these URLs:`n"$urlOutput
 
     $OutputLogger.Log(
@@ -1558,6 +1558,8 @@ function New-PolicyBasedReplicationSetup()
 }
 #EndRegion
 
+#Region Script
+
 $WarningPreference = "SilentlyContinue"
 $ErrorActionPreference = "Stop"
 $StartTime = Get-Date -Format 'dd-MM-yyyy-HH-mm-ss'
@@ -1590,3 +1592,4 @@ finally
         "EndTime - $EndTime",
         [LogType]::INFO)
 }
+#EndRegion

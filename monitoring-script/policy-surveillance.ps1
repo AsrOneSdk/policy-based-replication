@@ -62,6 +62,47 @@ Add-Type -AssemblyName System.Windows.Forms
 #Region GUI
 
 ### <summary>
+###  Names of the grid view columns.
+### </summary>
+Enum GridViewColumnName
+{
+    ### <summary>
+    ###  Column name is VirtualMachine.
+    ### </summary>
+    VirtualMachine = 0
+
+    ### <summary>
+    ###  Column name is ProtectionState.
+    ### </summary>
+    ProtectionState = 1
+
+    ### <summary>
+    ###  Column name is ReplicationHealth.
+    ### </summary>
+    ReplicationHealth = 2
+
+    ### <summary>
+    ###  Column name is ReplicationProtectedItem.
+    ### </summary>
+    ReplicationProtectedItem = 3
+
+    ### <summary>
+    ###  Column name is AsrDeployment.
+    ### </summary>
+    AsrDeployment = 4
+
+    ### <summary>
+    ###  Column name is DeploymentState.
+    ### </summary>
+    DeploymentState = 5
+
+    ### <summary>
+    ###  Column name is Errors.
+    ### </summary>
+    Errors = 6
+}
+
+### <summary>
 ### Class to maintain all the GUI aspects.
 ### </summary>
 Class UserInterface
@@ -103,7 +144,7 @@ Class UserInterface
         #Region Form - Setup
 
         $this.PolicyForm                 = [System.Windows.Forms.Form]::New()
-        $this.PolicyForm.ClientSize      = '900,400'
+        $this.PolicyForm.ClientSize      = '1000,400'
         $this.PolicyForm.text            = "Policy Surveillance"
         $this.PolicyForm.BackColor       = "#d6e6f5"
         #EndRegion
@@ -147,7 +188,7 @@ Class UserInterface
         $GithubIssueLinkLabel.AutoSize        = $true
         $GithubIssueLinkLabel.width           = 100
         $GithubIssueLinkLabel.height          = 12
-        $GithubIssueLinkLabel.location        = [System.Drawing.Point]::New(800,20)
+        $GithubIssueLinkLabel.location        = [System.Drawing.Point]::New(900,20)
         $GithubIssueLinkLabel.Font            = 'style=Underline'
         $GithubIssueLinkLabel.ForeColor       = "#143855"
         $GithubIssueLinkLabel.Links.Add(
@@ -266,24 +307,36 @@ Class UserInterface
         #Region VM Info GridView
 
         $this.VmInfoGridView                      = [System.Windows.Forms.DataGridView]::New()
-        $this.VmInfoGridView.width                = 900
+        $this.VmInfoGridView.width                = 1000
         $this.VmInfoGridView.height               = 250
         $this.VmInfoGridView.ColumnHeadersVisible = $true
         $this.VmInfoGridView.AllowUserToAddRows   = $false
 
-        $this.VmInfoGridView.ColumnCount      = 6
-        $this.VmInfoGridView.Columns[0].Name  = "VirtualMachine"
+        #Region Grid Columns
+
+        $this.VmInfoGridView.ColumnCount      = 7
+        $this.VmInfoGridView.Columns[0].Name  = [GridViewColumnName]::VirtualMachine.ToString()
         $this.VmInfoGridView.Columns[0].Width = 150
-        $this.VmInfoGridView.Columns[1].Name  = "ProtectionState"
-        $this.VmInfoGridView.Columns[1].Width = 100
-        $this.VmInfoGridView.Columns[2].Name  = "ReplicationHealth"
+
+        $this.VmInfoGridView.Columns[1].Name  = [GridViewColumnName]::ProtectionState.ToString()
+        $this.VmInfoGridView.Columns[1].Width = 125
+
+        $this.VmInfoGridView.Columns[2].Name  = [GridViewColumnName]::ReplicationHealth.ToString()
         $this.VmInfoGridView.Columns[2].Width = 100
-        $this.VmInfoGridView.Columns[3].Name  = "ReplicationProtectedItem"
-        $this.VmInfoGridView.Columns[3].Width = 200
-        $this.VmInfoGridView.Columns[4].Name  = "AsrDeployment"
-        $this.VmInfoGridView.Columns[4].Width = 200
-        $this.VmInfoGridView.Columns[5].Name  = "Errors"
-        $this.VmInfoGridView.Columns[5].Width = 150
+
+        $this.VmInfoGridView.Columns[3].Name  =
+            [GridViewColumnName]::ReplicationProtectedItem.ToString()
+        $this.VmInfoGridView.Columns[3].Width = 225
+
+        $this.VmInfoGridView.Columns[4].Name  = [GridViewColumnName]::AsrDeployment.ToString()
+        $this.VmInfoGridView.Columns[4].Width = 150
+
+        $this.VmInfoGridView.Columns[5].Name  = [GridViewColumnName]::DeploymentState.ToString()
+        $this.VmInfoGridView.Columns[5].Width = 100
+
+        $this.VmInfoGridView.Columns[6].Name  = [GridViewColumnName]::Errors.ToString()
+        $this.VmInfoGridView.Columns[6].Width = 100
+        #EndRegion
 
         $this.VmInfoGridView.Anchor           = 'bottom,left'
         $this.VmInfoGridView.location         = [System.Drawing.Point]::New(0, 150)
@@ -294,7 +347,7 @@ Class UserInterface
                 $value = $this.Rows[$_.RowIndex].Cells[$_.ColumnIndex].ToolTipText
 
                 # Error popup
-                if ($_.ColumnIndex -ne 5)
+                if ($_.ColumnIndex -ne [GridViewColumnName]::Errors)
                 {
                     return
                 }
@@ -369,20 +422,12 @@ Class UserInterface
     ### <param name="vmInfo">Virtual machine information.</param>
     [void] AddVmInfoRow([VirtualMachine] $vmInfo)
     {
-        <##########################################################################################
-        Column index
-        0 - VM (Link)
-        1 - ProtectionState (Text)
-        2 - ReplicationHealth (Text)
-        3 - ProtectedItem (Link/Text)
-        4 - ASR Deployment (Link/Text)
-        5 - Errors (Text)
-        ##########################################################################################>
-
         if ($null -eq $vmInfo)
         {
             return
         }
+
+        $vmInfo = $vmInfo | Sort-Object { $_.name }
 
         $suppress_output = $this.VmInfoGridView.Rows.Add(
             @(
@@ -397,11 +442,13 @@ Class UserInterface
                 ),
                 $vmInfo.protectedItemId,
                 $vmInfo.deploymentId,
+                $vmInfo.deploymentProvisioningState,
                 $vmInfo.errors.Count
             )
         )
         $index = $this.VmInfoGridView.Rows.Count - 1
-        $this.VmInfoGridView[5, $index].ToolTipText = $(Out-String -InputObject $vmInfo.errors)
+        $this.VmInfoGridView[[GridViewColumnName]::Errors, $index].ToolTipText =
+            $(Out-String -InputObject $vmInfo.errors)
 
         $vmLinkCell = [System.Windows.Forms.DataGridViewLinkCell]::New()
         $vmLinkCell.Value = $vmInfo.name
@@ -411,7 +458,7 @@ Class UserInterface
         $vmLinkCell.LinkColor = [System.Drawing.Color]::DarkBlue
         $vmLinkCell.LinkVisited = $false;
         $vmLinkCell.TrackVisitedState = $false;
-        $this.VmInfoGridView[0, $index] = $vmLinkCell
+        $this.VmInfoGridView[[GridViewColumnName]::VirtualMachine, $index] = $vmLinkCell
 
         if ($vmInfo.IsProtected())
         {
@@ -424,7 +471,8 @@ Class UserInterface
             $protectedItemLinkCell.LinkColor = [System.Drawing.Color]::DarkBlue
             $protectedItemLinkCell.LinkVisited = $false;
             $protectedItemLinkCell.TrackVisitedState = $false;
-            $this.VmInfoGridView[3, $index] = $protectedItemLinkCell
+            $this.VmInfoGridView[[GridViewColumnName]::ReplicationProtectedItem, $index] =
+                $protectedItemLinkCell
         }
 
         if (-not [string]::IsNullOrEmpty($vmInfo.deploymentId))
@@ -437,7 +485,7 @@ Class UserInterface
             $deploymentLinkCell.LinkColor = [System.Drawing.Color]::DarkBlue
             $deploymentLinkCell.LinkVisited = $false;
             $deploymentLinkCell.TrackVisitedState = $false;
-            $this.VmInfoGridView[4, $index] = $deploymentLinkCell
+            $this.VmInfoGridView[[GridViewColumnName]::AsrDeployment, $index] = $deploymentLinkCell
         }
 
         $this.VmInfoGridView.Rows[$index].ReadOnly = $true
@@ -708,6 +756,7 @@ class ConstantStrings
     static [string] $deploymentFailedState = "Failed"
     static [string] $deployments = "deployments"
     static [string] $deploymentsApiVersion = "2019-10-01"
+    static [string] $deploymentSucceededState = "Succeeded"
     static [string] $httpGet = "GET"
     static [string] $githubIssue = "https://github.com/AsrOneSdk/policy-based-replication/" +
         "issues/new"
@@ -1069,6 +1118,11 @@ class VirtualMachine
     ###  Gets the deployment resource group name.
     ### </summary>
     [string] $deploymentResourceGroupName
+
+    ### <summary>
+    ###  Gets the deployment provisioning state.
+    ### </summary>
+    [string] $deploymentProvisioningState
 
     ### <summary>
     ###  Gets the deployment portal link.
@@ -1629,7 +1683,7 @@ function Get-AsrDeployment($deployment)
 
         $asrDeployment.Errors = @($deploymentError)
     }
-    else
+    elseif ($deployment.ProvisioningState -like [ConstantStrings]::deploymentSucceededState)
     {
         $validationOutput = $deployment.Outputs[[ConstantStrings]::replicationEligibilityResults]
 
@@ -1757,7 +1811,7 @@ function Get-VirtualMachineInformation(
                 }
 
                 # CHANGE THIS TO -like after testing as the new policy doesnt add guid at the end.
-                $_.DeploymentName.ToLower().StartsWith($expectedName)
+                $_.DeploymentName.ToLower() -like $expectedName
             }
 
         if ($null -ne $correspondingLink)
@@ -1791,7 +1845,12 @@ function Get-VirtualMachineInformation(
             $vmInfoList[$index].deploymentName = $asrDeployment.Name
             $vmInfoList[$index].deploymentId = $asrDeployment.GetArmId()
             $vmInfoList[$index].deploymentResourceGroupName = $asrDeployment.ResourceGroupName
-            $vmInfoList[$index].errors.AddRange($asrDeployment.errors)
+            $vmInfoList[$index].deploymentProvisioningState = $asrDeployment.ProvisioningState
+
+            if ($null -ne $asrDeployment.errors)
+            {
+                $vmInfoList[$index].errors.AddRange($asrDeployment.errors)
+            }
         }
 
         $vmInfoList[$index].PopulatePortalUrls()

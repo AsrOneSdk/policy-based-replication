@@ -38,5 +38,6 @@
 ```
 
 - Sample output
+  - **_Note_** - You can click on a particular **errors** cell to get the error information.
 
 ![Output Snip](output-snip.PNG)
