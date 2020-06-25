@@ -102,7 +102,7 @@
               "vmDiskCount": "[add(length(variables('vmDataDiskIds')), int(1))]",
               "avSetTemplateName": "[concat('RecoveryAvSet-', last(split(parameters('vmId'), '/')))]",
               "replicationProtectedItemTemplateName": "[concat('ASR-', parameters('sourceResourceGroupName'), '-', last(split(parameters('vmId'), '/')))]",
-              "replicationProtectedItemTemplateName64": "[substring(variables('replicationProtectedItemTemplateName'), 0, 64)]",
+              "replicationProtectedItemTemplateName64": "[if(greater(length(variables('replicationProtectedItemTemplateName')), 64), substring(variables('replicationProtectedItemTemplateName'), 0, 64), variables('replicationProtectedItemTemplateName'))]",
               "sourceResourceGroupId": "[resourceGroup().id]",
               "vaultId": "[resourceId(parameters('vaultResourceGroupName'), 'Microsoft.RecoveryServices/vaults', parameters('vaultName'))]",
               "protectedItemName": "[concat(parameters('vaultName'), '/', parameters('sourceFabricName'), '/', parameters('sourceContainerName'), '/', guid(resourceGroup().id, deployment().name), '-policy')]",
