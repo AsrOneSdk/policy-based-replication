@@ -134,6 +134,19 @@ param(
     [int]$appConsistentFrequencyInHours = 1,
 
     [Parameter(Mandatory = $false,
+               HelpMessage="Partition style to initialize disks.")]
+    [ValidateNotNullorEmpty()]
+    [ValidateSet(
+        "GPT",
+        "MBR")]
+    [string]$partitionStyle = "GPT",
+
+    [Parameter(Mandatory = $false,
+               HelpMessage="Switch parameter to indicate if VM disks need to be initialized.")]
+    [ValidateNotNull()]
+    [switch]$initializeDisks = $false,
+
+    [Parameter(Mandatory = $false,
                HelpMessage="Script logs location. Default location would be that of the " + `
                "script file run.")]
     [ValidateNotNullorEmpty()]
@@ -388,9 +401,9 @@ class ConstantStrings
     static [string] $policyAssignmentPrefix = "AzureSiteRecovery-Replication-Policy-Assignment-"
     static [string] $policyDefinitionName = "AzureSiteRecovery-Replication-Policy"
     static [string] $policyDefinitionUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
-        "policy-based-replication/master/policy-1.0/policy.json"
+        "policy-based-replication/disk-initialization/policy-1.1/policy.json"
     static [string] $policyParametersUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
-        "policy-based-replication/master/policy-1.0/parameters.json"
+        "policy-based-replication/disk-initialization/policy-1.1/parameters.json"
     static [string] $portalPolicyCompliancePageLink = "https://portal.azure.com/#blade/" + `
         "Microsoft_Azure_Policy/PolicyMenuBlade/Compliance"
     static [string] $portalPolicyDetailedComplianceBladePrefix = "https://portal.azure.com/" + `
@@ -410,6 +423,8 @@ class ConstantStrings
 class PolicyParameter
 {
     static [string] $cacheStorageAccountName = "cacheStorageAccountName"
+    static [string] $initializeDisks = "initializeDisks"
+    static [string] $initializationPartitionStyle = "initializationPartitionStyle"
     static [string] $recoveryNetworkName = "recoveryNetworkName"
     static [string] $replicationPolicyName = "replicationPolicyName"
     static [string] $sourceContainerName = "sourceContainerName"
@@ -1174,6 +1189,8 @@ function New-ASRResources()
     $sourceTargetMapping, $targetSourceMapping = New-ReplicationProtectionContainerMapping
 
     # Adding required policy parameters
+    $policyParams.Add([PolicyParameter]::initializeDisks, $initializeDisks)
+    $policyParams.Add([PolicyParameter]::initializationPartitionStyle, $partitionStyle)
     $policyParams.Add([PolicyParameter]::replicationPolicyName, $replicationPolicyName)
     $policyParams.Add([PolicyParameter]::sourceContainerName, $sourceContainer.Name)
     $policyParams.Add([PolicyParameter]::targetContainerName, $targetContainer.Name)
@@ -1558,6 +1575,8 @@ function New-PolicyBasedReplicationSetup()
 }
 #EndRegion
 
+#Region Script
+
 $WarningPreference = "SilentlyContinue"
 $ErrorActionPreference = "Stop"
 $StartTime = Get-Date -Format 'dd-MM-yyyy-HH-mm-ss'
@@ -1590,3 +1609,4 @@ finally
         "EndTime - $EndTime",
         [LogType]::INFO)
 }
+#EndRegion
