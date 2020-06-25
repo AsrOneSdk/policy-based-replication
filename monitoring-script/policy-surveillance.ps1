@@ -111,11 +111,11 @@ Class UserInterface
         #Region MsLogo (Not in use)
 
         $MsLogo = [System.Windows.Forms.PictureBox]::New()
-        $MsLogo.width = 140
-        $MsLogo.height = 80
-        $MsLogo.location = [System.Drawing.Point]::New(745, 20)
+        $MsLogo.width         = 140
+        $MsLogo.height        = 80
+        $MsLogo.location      = [System.Drawing.Point]::New(745, 20)
         $MsLogo.imageLocation = [ConstantStrings]::microsoftLogoLink
-        $MsLogo.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::zoom
+        $MsLogo.SizeMode      = [System.Windows.Forms.PictureBoxSizeMode]::zoom
         #EndRegion
 
         #Region Subscription
@@ -129,32 +129,54 @@ Class UserInterface
         $SubscriptionIdLabel.Font        = 'style=Bold'
         $SubscriptionIdLabel.ForeColor   = "#143855"
 
-        $SubscriptionIdValueLabel        = [System.Windows.Forms.Label]::New()
-        $SubscriptionIdValueLabel.text   = $subscriptionId
-        $SubscriptionIdValueLabel.AutoSize = $true
-        $SubscriptionIdValueLabel.width  = 100
-        $SubscriptionIdValueLabel.height = 12
+        $SubscriptionIdValueLabel           = [System.Windows.Forms.Label]::New()
+        $SubscriptionIdValueLabel.text      = $subscriptionId
+        $SubscriptionIdValueLabel.AutoSize  = $true
+        $SubscriptionIdValueLabel.width     = 100
+        $SubscriptionIdValueLabel.height    = 12
         $SubscriptionIdValueLabel.location  = [System.Drawing.Point]::New(160,20)
-        $SubscriptionIdValueLabel.ForeColor  = "#143855"
+        $SubscriptionIdValueLabel.ForeColor = "#143855"
+        #EndRegion
+
+        #Region Github issue
+
+        $GithubIssueLinkLabel                 = [System.Windows.Forms.LinkLabel]::New()
+        $GithubIssueLinkLabel.text            = "Raise Bug"
+        $GithubIssueLinkLabel.LinkColor       = [System.Drawing.Color]::DarkBlue
+        $GithubIssueLinkLabel.ActiveLinkColor = [System.Drawing.Color]::DarkMagenta
+        $GithubIssueLinkLabel.AutoSize        = $true
+        $GithubIssueLinkLabel.width           = 100
+        $GithubIssueLinkLabel.height          = 12
+        $GithubIssueLinkLabel.location        = [System.Drawing.Point]::New(800,20)
+        $GithubIssueLinkLabel.Font            = 'style=Underline'
+        $GithubIssueLinkLabel.ForeColor       = "#143855"
+        $GithubIssueLinkLabel.Links.Add(
+            0,
+            $GithubIssueLinkLabel.text.Length,
+            [ConstantStrings]::githubIssue)
+        $GithubIssueLinkLabel.add_Click(
+            {
+                [System.Diagnostics.Process]::Start($this.Links[0].LinkData)
+            })
         #EndRegion
 
         #Region Resource group
 
-        $ResourceGroupNameLabel          = [System.Windows.Forms.Label]::New()
-        $ResourceGroupNameLabel.text     = "ResourceGroupName: "
-        $ResourceGroupNameLabel.AutoSize = $true
-        $ResourceGroupNameLabel.width    = 100
-        $ResourceGroupNameLabel.height   = 12
-        $ResourceGroupNameLabel.location = [System.Drawing.Point]::New(15, 40)
-        $ResourceGroupNameLabel.Font     = 'style=Bold'
-        $ResourceGroupNameLabel.ForeColor  = "#143855"
+        $ResourceGroupNameLabel           = [System.Windows.Forms.Label]::New()
+        $ResourceGroupNameLabel.text      = "ResourceGroupName: "
+        $ResourceGroupNameLabel.AutoSize  = $true
+        $ResourceGroupNameLabel.width     = 100
+        $ResourceGroupNameLabel.height    = 12
+        $ResourceGroupNameLabel.location  = [System.Drawing.Point]::New(15, 40)
+        $ResourceGroupNameLabel.Font      = 'style=Bold'
+        $ResourceGroupNameLabel.ForeColor = "#143855"
 
-        $ResourceGroupNameValueLabel     = [System.Windows.Forms.Label]::New()
-        $ResourceGroupNameValueLabel.text  = $resourceGroupName
-        $ResourceGroupNameValueLabel.AutoSize = $true
-        $ResourceGroupNameValueLabel.width = 100
-        $ResourceGroupNameValueLabel.height = 12
-        $ResourceGroupNameValueLabel.location = [System.Drawing.Point]::New(160, 40)
+        $ResourceGroupNameValueLabel           = [System.Windows.Forms.Label]::New()
+        $ResourceGroupNameValueLabel.text      = $resourceGroupName
+        $ResourceGroupNameValueLabel.AutoSize  = $true
+        $ResourceGroupNameValueLabel.width     = 100
+        $ResourceGroupNameValueLabel.height    = 12
+        $ResourceGroupNameValueLabel.location  = [System.Drawing.Point]::New(160, 40)
         $ResourceGroupNameValueLabel.ForeColor = "#143855"
         #EndRegion
 
@@ -169,16 +191,16 @@ Class UserInterface
         $PolicyAssignmentLabel.Font      = 'style=Bold'
         $PolicyAssignmentLabel.ForeColor = "#143855"
 
-        $PolicyAssignmentLinkLabel     = [System.Windows.Forms.LinkLabel]::New()
-        $PolicyAssignmentLinkLabel.text  = $policyAssignment.Name
-        $PolicyAssignmentLinkLabel.LinkColor = [System.Drawing.Color]::DarkBlue
+        $PolicyAssignmentLinkLabel                 = [System.Windows.Forms.LinkLabel]::New()
+        $PolicyAssignmentLinkLabel.text            = $policyAssignment.Name
+        $PolicyAssignmentLinkLabel.LinkColor       = [System.Drawing.Color]::DarkBlue
         $PolicyAssignmentLinkLabel.ActiveLinkColor = [System.Drawing.Color]::DarkMagenta
-        $PolicyAssignmentLinkLabel.AutoSize = $true
-        $PolicyAssignmentLinkLabel.width = 100
-        $PolicyAssignmentLinkLabel.height = 12
-        $PolicyAssignmentLinkLabel.location = [System.Drawing.Point]::New(160, 60)
-        $PolicyAssignmentLinkLabel.Font = 'style=Underline'
-        $PolicyAssignmentLinkLabel.ForeColor = "#143855"
+        $PolicyAssignmentLinkLabel.AutoSize        = $true
+        $PolicyAssignmentLinkLabel.width           = 100
+        $PolicyAssignmentLinkLabel.height          = 12
+        $PolicyAssignmentLinkLabel.location        = [System.Drawing.Point]::New(160, 60)
+        $PolicyAssignmentLinkLabel.Font            = 'style=Underline'
+        $PolicyAssignmentLinkLabel.ForeColor       = "#143855"
         $PolicyAssignmentLinkLabel.Links.Add(
             0,
             $PolicyAssignmentLinkLabel.text.Length,
@@ -191,22 +213,22 @@ Class UserInterface
 
         #Region Policy Assignment Summary - non-compliant resources
 
-        $NonCompliantResourcesLabel          = [System.Windows.Forms.Label]::New()
-        $NonCompliantResourcesLabel.text     = "Non-Compliant Resources: "
-        $NonCompliantResourcesLabel.AutoSize = $true
-        $NonCompliantResourcesLabel.width    = 100
-        $NonCompliantResourcesLabel.height   = 12
-        $NonCompliantResourcesLabel.location = [System.Drawing.Point]::New(15, 80)
-        $NonCompliantResourcesLabel.Font     = 'style=Bold'
-        $NonCompliantResourcesLabel.ForeColor  = "#143855"
+        $NonCompliantResourcesLabel           = [System.Windows.Forms.Label]::New()
+        $NonCompliantResourcesLabel.text      = "Non-Compliant Resources: "
+        $NonCompliantResourcesLabel.AutoSize  = $true
+        $NonCompliantResourcesLabel.width     = 100
+        $NonCompliantResourcesLabel.height    = 12
+        $NonCompliantResourcesLabel.location  = [System.Drawing.Point]::New(15, 80)
+        $NonCompliantResourcesLabel.Font      = 'style=Bold'
+        $NonCompliantResourcesLabel.ForeColor = "#143855"
 
-        $NonCompliantResourcesValueLabel     = [System.Windows.Forms.Label]::New()
-        $NonCompliantResourcesValueLabel.text  =
+        $NonCompliantResourcesValueLabel           = [System.Windows.Forms.Label]::New()
+        $NonCompliantResourcesValueLabel.text      =
             $policyAssignmentSummary.Results.NonCompliantResources
-        $NonCompliantResourcesValueLabel.AutoSize = $true
-        $NonCompliantResourcesValueLabel.width = 100
-        $NonCompliantResourcesValueLabel.height = 12
-        $NonCompliantResourcesValueLabel.location = [System.Drawing.Point]::New(160, 80)
+        $NonCompliantResourcesValueLabel.AutoSize  = $true
+        $NonCompliantResourcesValueLabel.width     = 100
+        $NonCompliantResourcesValueLabel.height    = 12
+        $NonCompliantResourcesValueLabel.location  = [System.Drawing.Point]::New(160, 80)
         $NonCompliantResourcesValueLabel.ForeColor = "#143855"
         #EndRegion
 
@@ -221,16 +243,16 @@ Class UserInterface
         $PolicyRemediationLabel.Font      = 'style=Bold'
         $PolicyRemediationLabel.ForeColor = "#143855"
 
-        $PolicyRemediationLinkLabel     = [System.Windows.Forms.LinkLabel]::New()
-        $PolicyRemediationLinkLabel.text  = "Create Remediation Task"
-        $PolicyRemediationLinkLabel.LinkColor = [System.Drawing.Color]::DarkBlue
+        $PolicyRemediationLinkLabel                 = [System.Windows.Forms.LinkLabel]::New()
+        $PolicyRemediationLinkLabel.text            = "Create Remediation Task"
+        $PolicyRemediationLinkLabel.LinkColor       = [System.Drawing.Color]::DarkBlue
         $PolicyRemediationLinkLabel.ActiveLinkColor = [System.Drawing.Color]::DarkMagenta
-        $PolicyRemediationLinkLabel.AutoSize = $true
-        $PolicyRemediationLinkLabel.width = 100
-        $PolicyRemediationLinkLabel.height = 12
-        $PolicyRemediationLinkLabel.location = [System.Drawing.Point]::New(160, 100)
-        $PolicyRemediationLinkLabel.Font = 'style=Underline'
-        $PolicyRemediationLinkLabel.ForeColor = "#143855"
+        $PolicyRemediationLinkLabel.AutoSize        = $true
+        $PolicyRemediationLinkLabel.width           = 100
+        $PolicyRemediationLinkLabel.height          = 12
+        $PolicyRemediationLinkLabel.location        = [System.Drawing.Point]::New(160, 100)
+        $PolicyRemediationLinkLabel.Font            = 'style=Underline'
+        $PolicyRemediationLinkLabel.ForeColor       = "#143855"
         $PolicyRemediationLinkLabel.Links.Add(
             0,
             $PolicyRemediationLinkLabel.text.Length,
@@ -243,13 +265,13 @@ Class UserInterface
 
         #Region VM Info GridView
 
-        $this.VmInfoGridView                   = [System.Windows.Forms.DataGridView]::New()
-        $this.VmInfoGridView.width             = 900
-        $this.VmInfoGridView.height            = 250
+        $this.VmInfoGridView                      = [System.Windows.Forms.DataGridView]::New()
+        $this.VmInfoGridView.width                = 900
+        $this.VmInfoGridView.height               = 250
         $this.VmInfoGridView.ColumnHeadersVisible = $true
-        $this.VmInfoGridView.AllowUserToAddRows = $false
+        $this.VmInfoGridView.AllowUserToAddRows   = $false
 
-        $this.VmInfoGridView.ColumnCount = 6
+        $this.VmInfoGridView.ColumnCount      = 6
         $this.VmInfoGridView.Columns[0].Name  = "VirtualMachine"
         $this.VmInfoGridView.Columns[0].Width = 150
         $this.VmInfoGridView.Columns[1].Name  = "ProtectionState"
@@ -319,6 +341,7 @@ Class UserInterface
                 #$MsLogo, # Commenting this for now.
                 $SubscriptionIdLabel,
                 $SubscriptionIdValueLabel,
+                $GithubIssueLinkLabel,
                 $ResourceGroupNameLabel,
                 $ResourceGroupNameValueLabel,
                 $PolicyAssignmentLabel,
@@ -676,6 +699,8 @@ class Logger
 
 class ConstantStrings
 {
+    static [int] $deploymentNameMaxLength = 64
+
     static [string] $a2aProvider = "A2A"
     static [string] $apiVersion = "api-version"
     static [string] $authHeader = "authorization"
@@ -684,6 +709,8 @@ class ConstantStrings
     static [string] $deployments = "deployments"
     static [string] $deploymentsApiVersion = "2019-10-01"
     static [string] $httpGet = "GET"
+    static [string] $githubIssue = "https://github.com/AsrOneSdk/policy-based-replication/" +
+        "issues/new"
     static [string] $managementAzureEndpoint = "https://management.azure.com"
     static [string] $microsoftLogoLink = "https://c.s-microsoft.com/en-us/CMSImages/" +
         "ImgOne.jpg?version=D418E733-821C-244F-37F9-DC865BDEFEC0"
@@ -1699,12 +1726,10 @@ function Get-VirtualMachineInformation(
         exit
     }
 
+    $deploymentPrefix = ([ConstantStrings]::policyDeploymentPrefix + $resourceGroupName).ToLower()
     $resourceLinks = Get-ResourceLinks -ResourceGroupName $resourceGroupName
     $deployments = Get-AzResourceGroupDeployment -ResourceGroupName $vaultResourceGroupName | `
-        Where-Object {
-            $_.DeploymentName.ToLower().StartsWith(
-                ([ConstantStrings]::policyDeploymentPrefix + $resourceGroupName).ToLower())
-        }
+        Where-Object { $_.DeploymentName.ToLower().StartsWith($deploymentPrefix) }
 
     Write-Host -ForegroundColor Green "Correlating VMs with resource links, protected items, and" `
         "deployments..."
@@ -1723,9 +1748,16 @@ function Get-VirtualMachineInformation(
             Where-Object {$_.SourceId.Trim('/') -like $vm.Id.Trim('/')}
         $correspondingDeployment = $deployments |`
             Where-Object {
+                $expectedName = ($deploymentPrefix + "-" + $vm.Name).ToLower()
+
+                if ($expectedName.Length -ge [ConstantStrings]::deploymentNameMaxLength)
+                {
+                    $expectedName =
+                        $expectedName.Substring(0, [ConstantStrings]::deploymentNameMaxLength)
+                }
+
                 # CHANGE THIS TO -like after testing as the new policy doesnt add guid at the end.
-                $_.DeploymentName.ToLower().StartsWith(
-                    ([ConstantStrings]::policyDeploymentPrefix + $resourceGroupName + "-" + $vm.Name).ToLower())
+                $_.DeploymentName.ToLower().StartsWith($expectedName)
             }
 
         if ($null -ne $correspondingLink)
