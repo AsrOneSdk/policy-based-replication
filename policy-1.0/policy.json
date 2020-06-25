@@ -119,6 +119,7 @@
             },
             "resources": [
               {
+                "condition": "[not(empty(parameters('avSetId')))]",
                 "apiVersion": "2017-05-10",
                 "name": "[variables('avSetTemplateName')]",
                 "type": "Microsoft.Resources/deployments",
