@@ -109,7 +109,7 @@
               "vmDataDiskIds": "[array(parameters('dataDiskIds').rawValue)]",
               "vmDiskCount": "[add(length(variables('vmDataDiskIds')), int(1))]",
               "avSetTemplateName": "[concat('RecoveryAvSet-', last(split(parameters('vmId'), '/')))]",
-              "customScriptExtensionName": "[concat('DiskInit-', last(split(parameters('vmId'), '/')))]",
+              "customScriptExtensionName": "[concat(last(split(parameters('vmId'), '/')), '/DiskInit')]",
               "customScriptExtensionTemplateName": "[concat('DiskInit-', parameters('sourceResourceGroupName'), '-', last(split(parameters('vmId'), '/')))]",
               "customScriptExtensionTemplateName64": "[substring(variables('customScriptExtensionTemplateName'), 0, 64)]",
               "replicationProtectedItemTemplateName": "[concat('ASR-', parameters('sourceResourceGroupName'), '-', last(split(parameters('vmId'), '/')))]",
@@ -193,7 +193,7 @@
                             "fileUris": ["https://raw.githubusercontent.com/AsrOneSdk/policy-based-replication/disk-initialization/deploymentScripts/disk-init.ps1"]
                           },
                           "protectedSettings": {
-                            "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File disk-init.ps1"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File disk-init.ps1 -PartitionStyle ', parameters('partitionStyle'))]"
                           }
                         }
                       }
