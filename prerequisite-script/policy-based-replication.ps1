@@ -969,7 +969,7 @@ function New-ReplicationProtectionContainer()
     if ($null -eq $sourceContainer)
     {
         Write-Host -ForegroundColor Green "Creating a new replication container -" `
-            $sourceContainerName", under fabric - "$sourceFabric.Name"."
+            $sourceContainerName", under fabric - "$($sourceFabric.Name)"."
 
         $isNewSourceContainer = $true
         $sourceJob = New-AzRecoveryServicesAsrProtectionContainer -Name $sourceContainerName `
@@ -979,7 +979,7 @@ function New-ReplicationProtectionContainer()
     if ($null -eq $targetContainer)
     {
         Write-Host -ForegroundColor Green "Creating a new replication container -" `
-            $targetContainerName", under fabric - "$targetFabric.Name"."
+            $targetContainerName", under fabric - "$($targetFabric.Name)"."
 
         $isNewTargetContainer = $true
         $targetJob = New-AzRecoveryServicesAsrProtectionContainer -Name $targetContainerName `
@@ -1189,7 +1189,7 @@ function New-ASRResources()
     $sourceTargetMapping, $targetSourceMapping = New-ReplicationProtectionContainerMapping
 
     # Adding required policy parameters
-    $policyParams.Add([PolicyParameter]::initializeDisks, $initializeDisks)
+    $policyParams.Add([PolicyParameter]::initializeDisks, $initializeDisks.ToBool())
     $policyParams.Add([PolicyParameter]::initializationPartitionStyle, $partitionStyle)
     $policyParams.Add([PolicyParameter]::replicationPolicyName, $replicationPolicyName)
     $policyParams.Add([PolicyParameter]::sourceContainerName, $sourceContainer.Name)
@@ -1510,7 +1510,7 @@ function Log-AdditionalURLs()
     $urlOutput += "`n"
 
 
-    Write-Host -ForegroundColor Green "Additional URLs if required - Check the github ReadMe " `
+    Write-Host -ForegroundColor Green "Additional URLs if required - Check the github ReadMe" `
         "for details regarding these URLs:`n"$urlOutput
 
     $OutputLogger.Log(

@@ -74,6 +74,9 @@
               "sourceFabricName": {
                 "type": "String"
               },
+              "sourceRegion": {
+                "type": "String"
+              },
               "sourceResourceGroupName": {
                 "type": "String"
               },
@@ -111,9 +114,9 @@
               "avSetTemplateName": "[concat('RecoveryAvSet-', last(split(parameters('vmId'), '/')))]",
               "customScriptExtensionName": "[concat(last(split(parameters('vmId'), '/')), '/DiskInit')]",
               "customScriptExtensionTemplateName": "[concat('DiskInit-', parameters('sourceResourceGroupName'), '-', last(split(parameters('vmId'), '/')))]",
-              "customScriptExtensionTemplateName64": "[substring(variables('customScriptExtensionTemplateName'), 0, 64)]",
+              "customScriptExtensionTemplateName64": "[if(greater(length(variables('customScriptExtensionTemplateName')), 64), substring(variables('customScriptExtensionTemplateName'), 0, 64), variables('customScriptExtensionTemplateName'))]",
               "replicationProtectedItemTemplateName": "[concat('ASR-', parameters('sourceResourceGroupName'), '-', last(split(parameters('vmId'), '/')))]",
-              "replicationProtectedItemTemplateName64": "[substring(variables('replicationProtectedItemTemplateName'), 0, 64)]",
+              "replicationProtectedItemTemplateName64": "[if(greater(length(variables('replicationProtectedItemTemplateName')), 64), substring(variables('replicationProtectedItemTemplateName'), 0, 64), variables('replicationProtectedItemTemplateName'))]",
               "sourceResourceGroupId": "[resourceGroup().id]",
               "vaultId": "[resourceId(parameters('vaultResourceGroupName'), 'Microsoft.RecoveryServices/vaults', parameters('vaultName'))]",
               "protectedItemName": "[concat(parameters('vaultName'), '/', parameters('sourceFabricName'), '/', parameters('sourceContainerName'), '/', guid(resourceGroup().id, deployment().name), '-policy')]",
@@ -165,7 +168,7 @@
                 }
               },
               {
-                "condition": "[and(equals(toLower(reference(parameters('vmId'), variables('vmApiVersion')).storageProfile.osDisk.osType), variables('WindowsLower')), greater(variables('vmDiskCount'), 1), parameters('initializeDisks'))]",
+                "condition": "[parameters('initializeDisks')]",
                 "apiVersion": "2017-05-10",
                 "name": "[variables('customScriptExtensionTemplateName64')]",
                 "type": "Microsoft.Resources/deployments",
@@ -179,10 +182,11 @@
                     "variables": {},
                     "resources": [
                       {
+                        "condition": "[and(equals(toLower(reference(parameters('vmId'), variables('vmApiVersion')).storageProfile.osDisk.osType), variables('WindowsLower')), greater(variables('vmDiskCount'), 1), parameters('initializeDisks'))]",
                         "type": "Microsoft.Compute/virtualMachines/extensions",
                         "name": "[variables('customScriptExtensionName')]",
                         "apiVersion": "[variables('customScriptExtensionApiVersion')]",
-                        "location": "[parameters('targetRegion')]",
+                        "location": "[parameters('sourceRegion')]",
                         "tags": {},
                         "properties": {
                           "publisher": "Microsoft.Compute",
@@ -190,7 +194,7 @@
                           "typeHandlerVersion": "1.10",
                           "autoUpgradeMinorVersion": true,
                           "settings": {
-                            "fileUris": ["https://raw.githubusercontent.com/AsrOneSdk/policy-based-replication/disk-initialization/deploymentScripts/disk-init.ps1"]
+                            "fileUris": [ "https://raw.githubusercontent.com/AsrOneSdk/policy-based-replication/disk-initialization/deploymentScripts/disk-init.ps1" ]
                           },
                           "protectedSettings": {
                             "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File disk-init.ps1 -PartitionStyle ', parameters('partitionStyle'))]"
@@ -310,6 +314,9 @@
             },
             "sourceFabricName": {
               "value": "[parameters('sourceFabricName')]"
+            },
+            "sourceRegion": {
+              "value": "[parameters('sourceRegion')]"
             },
             "targetContainerName": {
               "value": "[parameters('targetContainerName')]"
