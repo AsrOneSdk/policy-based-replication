@@ -402,8 +402,10 @@ class ConstantStrings
     static [int] $policyAssignmentNameMaxLength = 64
     static [string] $policyAssignmentPrefix = "AzureSiteRecovery-Replication-Policy-Assignment-"
     static [string] $policyDefinitionName = "AzureSiteRecovery-Replication-Policy"
-    static [string] $policyDefinitionUrl = "..\policy-1.0\policy.json"
-    static [string] $policyParametersUrl = "..\policy-1.0\parameters.json"
+    static [string] $policyDefinitionUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
+        "policy-based-replication/allowZone/policy-1.0/policy.json"
+    static [string] $policyParametersUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
+        "policy-based-replication/allowZone/policy-1.0/parameters.json"
     static [string] $portalPolicyCompliancePageLink = "https://portal.azure.com/#blade/" + `
         "Microsoft_Azure_Policy/PolicyMenuBlade/Compliance"
     static [string] $portalPolicyDetailedComplianceBladePrefix = "https://portal.azure.com/" + `
