@@ -1,15 +1,64 @@
 {
-  "cacheStorageAccountName": {
+  "sourceRegion": {
     "type": "String",
     "metadata": {
-      "displayName": "Cache StorageAccount Name",
-      "description": null
+      "displayName": "Source Region",
+      "description": null,
+      "strongType": "location"
     }
   },
-  "recoveryNetworkName": {
+  "targetRegion": {
     "type": "String",
     "metadata": {
-      "displayName": "Recovery Network Name",
+      "displayName": "Target Region",
+      "description": null,
+      "strongType": "location"
+    }
+  },
+  "targetResourceGroupId": {
+    "type": "String",
+    "metadata": {
+      "displayName": "Target Resource Group",
+      "description": null,
+      "assignPermissions": true
+    }
+  },
+  "vaultResourceGroupId": {
+    "type": "String",
+    "metadata": {
+      "displayName": "Vault Resource Group",
+      "description": null,
+      "assignPermissions": true
+    }
+  },
+  "vaultId": {
+    "type": "String",
+    "metadata": {
+      "displayName": "Recovery Services Vault",
+      "description": null,
+      "strongType": "Microsoft.RecoveryServices/vaults"
+    }
+  },
+  "cacheStorageAccountId": {
+    "type": "String",
+    "metadata": {
+      "displayName": "Cache Storage Account",
+      "description": null,
+      "strongType": "Microsoft.Storage/storageAccounts"
+    }
+  },
+  "recoveryNetworkId": {
+    "type": "String",
+    "metadata": {
+      "displayName": "Recovery Virtual Network",
+      "description": null,
+      "strongType": "Microsoft.Network/virtualNetworks"
+    }
+  },
+  "targetZone": {
+    "type": "String",
+    "metadata": {
+      "displayName": "Target Availability Zone",
       "description": null
     }
   },
@@ -34,14 +83,6 @@
       "description": null
     }
   },
-  "sourceRegion": {
-    "type": "String",
-    "metadata": {
-      "displayName": "Source Region",
-      "description": null,
-      "strongType": "location"
-    }
-  },
   "targetContainerName": {
     "type": "String",
     "metadata": {
@@ -55,38 +96,5 @@
       "displayName": "Target Fabric Name",
       "description": null
     }
-  },
-  "targetRegion": {
-    "type": "String",
-    "metadata": {
-      "displayName": "Target Region",
-      "description": null,
-      "strongType": "location"
-    }
-  },
-  "targetResourceGroupId": {
-    "type": "String",
-    "metadata": {
-      "displayName": "Target ResourceGroup Id",
-      "description": null,
-      "assignPermissions": true
-    }
-  },
-  "vaultId": {
-    "type": "String",
-    "metadata": {
-      "displayName": "Vault",
-      "description": null,
-      "strongType": "Microsoft.RecoveryServices/vaults"
-    }
-  },
-  "vaultResourceGroupId": {
-    "type": "String",
-    "metadata": {
-      "displayName": "Vault ResourceGroup Id",
-      "description": null,
-      "assignPermissions": true
-    }
   }
-
 }

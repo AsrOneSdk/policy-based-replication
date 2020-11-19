@@ -758,7 +758,7 @@ class ConstantStrings
     static [string] $deploymentsApiVersion = "2019-10-01"
     static [string] $deploymentSucceededState = "Succeeded"
     static [string] $httpGet = "GET"
-    static [string] $githubIssue = "https://github.com/AsrOneSdk/policy-based-replication/" +
+    static [string] $githubIssue = "https://github.com/AsrOneSdk/policy-based-replication-pr/" +
         "issues/new"
     static [string] $managementAzureEndpoint = "https://management.azure.com"
     static [string] $microsoftLogoLink = "https://c.s-microsoft.com/en-us/CMSImages/" +
@@ -767,7 +767,7 @@ class ConstantStrings
     static [string] $policyDefinitionName = "AzureSiteRecovery-Replication-Policy"
     static [string] $policyDeploymentPrefix = "ASR-"
     static [string] $policyScriptUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
-        "policy-based-replication/master/prerequisite-script/policy-based-replication.ps1"
+        "policy-based-replication-pr/ppgIgnite/prerequisite-script/policy-based-replication.ps1"
     static [string] $portalDeploymentDetailsBladePrefix = "https://portal.azure.com/" + `
         "#blade/HubsExtension/DeploymentDetailsBlade/outputs/id/"
     static [string] $portalLinkPrefix = "https://portal.azure.com/"

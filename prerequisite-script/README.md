@@ -32,7 +32,7 @@
     - vault resource group
       - check if resource group already exists
       - if not then
-        - create resource group in target location
+        - create resource group in vault location, if provided, else target location
     - vault
       - check if vault already exists and not in source location
       - if not then
@@ -45,6 +45,9 @@
       - check if protection containers (\<fabric-name\>-container) already exist
       - if not then
         - create protection containers in above format
+        - in case of zone to zone replication, the 2 containers are as follows -
+          - \<fabric-name\>-container1
+          - \<fabric-name\>-container2
     - replication policy
       - check if replication already exists
       - if not then
@@ -52,7 +55,10 @@
     - 2 replication protection container mappings (source-> target, target-> source)
       - check if mapping already exists between the containers using the replication policy
       - if not then
-        - create mapping (\<source-location\>-\<target-location\>-container))
+        - create mapping (\<source-location\>-\<target-location\>-policy))
+        - in case of zone to zone replication, the 2 containers mappings are as follows -
+          - \<source-location\>1-\<source-location\>2-policy
+          - \<source-location\>2-\<source-location\>1-policy
   - policy
     - policy definition
       - checking if a policy definition already exists (this is all that should be needed once the policy is published)
@@ -102,9 +108,11 @@
   - [Why does policy require a _managed services identity_?](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources#how-remediation-security-works)
   - What will the _managed services identity_ have access to?
     - The MSI will need to have access to the source resource group, target resource group and the vault resource group for the different deployments that need to be done.
+- name="**_vaultLocation_**" - **Optional** parameter defining the location of the vault. **Mandatory** in case of zone to zone replication. **Values allowed** - Full location without any spaces eg. _eastus_, _germanywestcentral_, _switzerlandnorth_ etc. Locations supported - [support_matrix](https://docs.microsoft.com/en-us/azure/site-recovery/azure-to-azure-support-matrix#region-support)
 - name="**_replicationPolicyName_**" - **Optional** parameter defining the replication policy name. **Default value used** - 24-hours-retention-policy.
 - name="**_recoveryNetworkName_**" - **Optional** parameter defining the recovery network name. **Default value used** - \<sourceResourceGroupName\>-vnet-asr.
 - name="**_targetResourceGroupName_**" - **Optional** parameter defining the target resource group name. **Default value used** - \<sourceResourceGroupName\>-asr.
+- name="**_targetAvailabilityZone_**" - **Optional** parameter defining the Recovery availability zone. **Mandatory** in case of zone to zone replication.
 - name="**_cacheStorageAccountName_**" - **Optional** parameter defining the [cache storage account](https://docs.microsoft.com/en-us/azure/site-recovery/azure-to-azure-how-to-enable-replication) name. **Default value used** - \<vaultName\> + cacheasr + GUID. This is trimmed down to 24 length.
 - name="**_cacheStorageAccountSkuName_**" - **Optional** parameter defining the cache storage account SKU name. Values allowed - [support_matrix](https://docs.microsoft.com/en-us/azure/site-recovery/azure-to-azure-support-matrix#cache-storage). **Default value used** - Standard_LRS.
 - name="**_recoverySubnetName_**" - **Optional** parameter defining a subnet name in case a new recovery network is created. **Default value used** - default.
@@ -125,6 +133,12 @@
 
 ```powershell
 .\policy-based-replication.ps1 -subscriptionId "12341234-1234-1234-1234-123412341234" -sourceResourceGroupName "source-rg" -sourceLocation "eastus" -targetLocation "westus" -vaultResourceGroupName "vault-rg" -vaultName "vault1" -msiLocation "centralus" -replicationPolicyName "replicationPolicy1" -addressPrefix "10.0.0.0/16" -cacheStorageAccountName "cachesa"
+```
+
+- Zone to zone replication
+
+```powershell
+.\policy-based-replication.ps1 -subscriptionId "12341234-1234-1234-1234-123412341234" -sourceResourceGroupName "source-rg" -sourceLocation "eastus" -targetLocation "eastus" -vaultResourceGroupName "vault-rg" -vaultName "vault1" -msiLocation "centralus" -targetAvailabilityZone 3 -vaultLocation "eastus2"
 ```
 
 - Sample output

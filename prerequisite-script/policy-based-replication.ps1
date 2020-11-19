@@ -16,12 +16,16 @@
 ### <param name="vaultName">Mandatory parameter defining the vault name.</param>
 ### <param name="msiLocation">Mandatory parameter defining the location where the managed services
 ### identity is deployed.</param>
+### <param name="vaultLocation">Optional parameter defining the location of the vault. Mandatory in
+### case of zone to zone replication.</param>
 ### <param name="replicationPolicyName">Optional parameter defining the replication policy name.
 ### Default value used - 24-hours-retention-policy.</param>
 ### <param name="recoveryNetworkName">Optional parameter defining the recovery network name.
 ### Default value used - <sourceResourceGroupName>-vnet-asr.</param>
 ### <param name="targetResourceGroupName">Optional parameter defining the target resource group
 ### name. Default value used - <sourceResourceGroupName>-asr.</param>
+### <param name="targetAvailabilityZone">Optional parameter defining the Recovery availability
+### zone. Mandatory in case of zone to zone replication.</param>
 ### <param name="cacheStorageAccountName">Optional parameter defining the cache storage account
 ### name. Default value used - <vaultName> + cacheasr + GUID. This is trimmed down to 24 length.
 ### </param>
@@ -46,63 +50,74 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true,
-               HelpMessage="Subscription Id.")]
+                HelpMessage="Subscription Id.")]
     [ValidateNotNullorEmpty()]
     [string]$subscriptionId,
 
     [Parameter(Mandatory = $true,
-               HelpMessage="Source resource group name.")]
+                HelpMessage="Source resource group name.")]
     [ValidateNotNullorEmpty()]
     [string]$sourceResourceGroupName,
 
     [Parameter(Mandatory = $true,
-               HelpMessage="Source region.")]
+                HelpMessage="Source region.")]
     [ValidateNotNullorEmpty()]
     [string]$sourceLocation,
 
     [Parameter(Mandatory = $true,
-               HelpMessage="Target region.")]
+                HelpMessage="Target region.")]
     [ValidateNotNullorEmpty()]
     [string]$targetLocation,
 
     [Parameter(Mandatory = $true,
-               HelpMessage="Vault resource group name.")]
+                HelpMessage="Vault resource group name.")]
     [ValidateNotNullorEmpty()]
     [string]$vaultResourceGroupName,
 
     [Parameter(Mandatory = $true,
-               HelpMessage="Vault name.")]
+                HelpMessage="Vault name.")]
     [ValidateNotNullorEmpty()]
     [string]$vaultName,
 
     [Parameter(Mandatory = $true,
-               HelpMessage="Managed services identity location (https://docs.microsoft.com/" + `
+                HelpMessage="Managed services identity location (https://docs.microsoft.com/" + `
                 "en-us/azure/active-directory/managed-identities-azure-resources/overview).")]
     [ValidateNotNullorEmpty()]
     [string]$msiLocation,
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Replication policy name.")]
+                HelpMessage="Vault region.")]
+    [ValidateNotNullorEmpty()]
+    [string]$vaultLocation,
+
+    [Parameter(Mandatory = $false,
+                HelpMessage="Replication policy name.")]
     [ValidateNotNullorEmpty()]
     [string]$replicationPolicyName = "24-hour-retention-policy",
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Recovery virtual network name.")]
+                HelpMessage="Recovery virtual network name.")]
     [ValidateNotNullorEmpty()]
     [string]$recoveryNetworkName = $null,
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Target resource group name.")]
+                HelpMessage="Target resource group name.")]
     [ValidateNotNullorEmpty()]
     [string]$targetResourceGroupName = $null,
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Cache storage account name.")]
+                HelpMessage="Recovery availability zone. Mandatory in case of zone to zone " + `
+                "replication.")]
+    [ValidateNotNullorEmpty()]
+    [string]$targetAvailabilityZone = $null,
+
+    [Parameter(Mandatory = $false,
+                HelpMessage="Cache storage account name.")]
     [ValidateNotNullorEmpty()]
     [string]$cacheStorageAccountName = $null,
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Cache storage account SKU name.")]
+                HelpMessage="Cache storage account SKU name.")]
     [ValidateNotNull()]
     [ValidateSet(
         "Standard_LRS",
@@ -112,29 +127,29 @@ param(
     [string]$cacheStorageAccountSkuName = "Standard_LRS",
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Recovery subnet name used, if need be, for creation of new network.")]
+                HelpMessage="Recovery subnet name used, if need be, for creation of new network.")]
     [ValidateNotNullorEmpty()]
     [string]$recoverySubnetName = "default",
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Recovery network address prefix used, if need be, for creation of " + `
+                HelpMessage="Recovery network address prefix used, if need be, for creation of " + `
                 "new network.")]
     [ValidateNotNullorEmpty()]
     [string]$addressPrefix = "10.0.0.0/16",
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Recovery point retention in hours for new replication policy.")]
+                HelpMessage="Recovery point retention in hours for new replication policy.")]
     [ValidateNotNull()]
     [int]$pitRetentionInHours = 24,
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Application consistent snapshot frequency in hours for new " + `
+                HelpMessage="Application consistent snapshot frequency in hours for new " + `
                 "replication policy.")]
     [ValidateNotNull()]
     [int]$appConsistentFrequencyInHours = 1,
 
     [Parameter(Mandatory = $false,
-               HelpMessage="Script logs location. Default location would be that of the " + `
+                HelpMessage="Script logs location. Default location would be that of the " + `
                "script file run.")]
     [ValidateNotNullorEmpty()]
     [string]$logFileLocation = $null)
@@ -387,10 +402,8 @@ class ConstantStrings
     static [int] $policyAssignmentNameMaxLength = 64
     static [string] $policyAssignmentPrefix = "AzureSiteRecovery-Replication-Policy-Assignment-"
     static [string] $policyDefinitionName = "AzureSiteRecovery-Replication-Policy"
-    static [string] $policyDefinitionUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
-        "policy-based-replication/master/policy-1.0/policy.json"
-    static [string] $policyParametersUrl = "https://raw.githubusercontent.com/AsrOneSdk/" + `
-        "policy-based-replication/master/policy-1.0/parameters.json"
+    static [string] $policyDefinitionUrl = "..\policy-1.0\policy.json"
+    static [string] $policyParametersUrl = "..\policy-1.0\parameters.json"
     static [string] $portalPolicyCompliancePageLink = "https://portal.azure.com/#blade/" + `
         "Microsoft_Azure_Policy/PolicyMenuBlade/Compliance"
     static [string] $portalPolicyDetailedComplianceBladePrefix = "https://portal.azure.com/" + `
@@ -405,16 +418,18 @@ class ConstantStrings
     static [string] $storageAccountRegex = "[^a-zA-Z0-9]"
     static [int] $storageServiceMaxLength = 24
     static [string] $subscriptions = "subscriptions"
+    static [string] $zoneRegex = "^\d?$"
 }
 
 class PolicyParameter
 {
-    static [string] $cacheStorageAccountName = "cacheStorageAccountName"
-    static [string] $recoveryNetworkName = "recoveryNetworkName"
+    static [string] $cacheStorageAccountId = "cacheStorageAccountId"
+    static [string] $recoveryNetworkId = "recoveryNetworkId"
     static [string] $replicationPolicyName = "replicationPolicyName"
     static [string] $sourceContainerName = "sourceContainerName"
     static [string] $sourceFabricName = "sourceFabricName"
     static [string] $sourceRegion = "sourceRegion"
+    static [string] $targetZone = "targetZone"
     static [string] $targetContainerName = "targetContainerName"
     static [string] $targetFabricName = "targetFabricName"
     static [string] $targetRegion = "targetRegion"
@@ -441,6 +456,17 @@ class Errors
     {
         return "The location user input - '" + $invalidLocation + "', is invalid. Only the " + `
             "following values are allowed - " + $($validLocations -Join ", ") + "."
+    }
+
+    ### <summary>
+    ###  Invalid availability zone exception.
+    ### </summary>
+    ### <param name="invalidZone">Invalid zone string passed by user.</param>
+    ### <return>Error string.</return>
+    static [string] InvalidZoneInput([string] $invalidZone)
+    {
+        return "The availability zone user input - '" + $invalidZone + "', is invalid. " + `
+            "The value is expected to be a single digit integer."
     }
 
     ### <summary>
@@ -587,6 +613,27 @@ class Errors
         "`nNew-AzRoleAssignment -ObjectId $principalId -ResourceGroupName $targetRGName " + `
         "-RoleDefinitionName $roleName"
     }
+
+    ### <summary>
+    ### Vault location missing exception.
+    ### </summary>
+    ### <return>Error string.</return>
+    static [string] VaultLocationMissing()
+    {
+        return "Vault location information is mandatory in case of zone to zone replication."
+    }
+
+    ### <summary>
+    ### Invalid vault location exception.
+    ### </summary>
+    ### <param name="vaultLocation">Vault location.</param>
+    ### <param name="sourceRegion">Source region.</param>
+    ### <return>Error string.</return>
+    static [string] InvalidVaultLocation([string] $vaultLocation, [string] $sourceRegion)
+    {
+        return "The recovery services vault location provided - '$vaultLocation', can't be the " +
+        "same as the source region - '$sourceRegion'."
+    }
 }
 #EndRegion
 
@@ -598,23 +645,27 @@ class Errors
 ### <param name="sourceLocation">Source region.</param>
 ### <param name="targetLocation">Target region.</param>
 ### <param name="msiLocation">Managed services identity location.</param>
+### <param name="vaultLocation">Vault location.</param>
 ### <param name="cacheStorageAccountName">Cache storage account name.</param>
 ### <param name="targetResourceGroupName">Target resource group name.</param>
 ### <param name="recoveryNetworkName">Recovery network name.</param>
 ### <param name="addressPrefix">Recovery network address prefix.</param>
+### <param name="targetAvailabilityZone">Recovery availability zone.</param>
 function Confirm-ScriptParameters(
     [ref]$sourceLocation,
     [ref]$targetLocation,
     [ref]$msiLocation,
+    [ref]$vaultLocation,
     [ref]$cacheStorageAccountName,
     [ref]$targetResourceGroupName,
     [ref]$recoveryNetworkName,
-    [ref]$addressPrefix)
+    [ref]$addressPrefix,
+    [ref]$targetAvailabilityZone)
 {
     $resourceProvider = Get-AzResourceProvider -ProviderNamespace Microsoft.Compute
 
     # Locations taken from resource type: availabilitySets instead of resource type:
-    # Virtual machines, just to stay in parallel with the Portal.
+    # Virtual machines, just to stay in parallel with ASR Portal.
     $locations = ($resourceProvider[0].Locations) | ForEach-Object { $_.Split(' ').tolower() `
         -join ''} | Sort-Object
 
@@ -637,9 +688,36 @@ function Confirm-ScriptParameters(
         throw [Errors]::InvalidLocation($msiLocation.Value, $locations)
     }
 
-    if ($sourceLocation.Value -eq $targetLocation.Value)
+    if (-not [string]::IsNullOrEmpty($targetAvailabilityZone.Value))
+    {
+        $isZoneToZone = $sourceLocation.Value -like $targetLocation.Value
+
+        if ($targetAvailabilityZone.Value -notmatch [ConstantStrings]::zoneRegex)
+        {
+            throw [Errors]::InvalidZoneInput($targetAvailabilityZone.Value)
+        }
+
+        if ($isZoneToZone -and [string]::IsNullOrEmpty($vaultLocation.Value))
+        {
+            throw [Errors]::VaultLocationMissing()
+        }
+    }
+    elseif ($sourceLocation.Value -eq $targetLocation.Value)
     {
         throw [Errors]::SameSourceAndTargetRegion($sourceLocation.Value, $targetLocation.Value)
+    }
+
+    if (-not [string]::IsNullOrEmpty($vaultLocation.Value))
+    {
+        if ($locations -notcontains $vaultLocation.Value)
+        {
+            throw [Errors]::InvalidLocation($vaultLocation.Value, $locations)
+        }
+
+        if ($sourceLocation.Value -like $vaultLocation.Value)
+        {
+            throw [Errors]::InvalidVaultLocation($vaultLocation.Value, $sourceLocation.Value)
+        }
     }
 
     # Storage account naming convention and length checks.
@@ -836,11 +914,12 @@ function New-AzureResources()
         -ResourceGroupName $targetResourceGroupName
 
     # Adding required policy parameters
-    $policyParams.Add([PolicyParameter]::cacheStorageAccountName, $cacheStorageAccountName)
-    $policyParams.Add([PolicyParameter]::recoveryNetworkName, $recoveryNetworkName)
+    $policyParams.Add([PolicyParameter]::cacheStorageAccountId, $cacheStorageAccount.Id)
+    $policyParams.Add([PolicyParameter]::recoveryNetworkId, $recoveryNetwork.Id)
     $policyParams.Add([PolicyParameter]::sourceRegion, $sourceLocation)
     $policyParams.Add([PolicyParameter]::targetRegion, $targetLocation)
     $policyParams.Add([PolicyParameter]::targetResourceGroupId, $targetResourceGroup.ResourceId)
+    $policyParams.Add([PolicyParameter]::targetZone, $targetAvailabilityZone)
 }
 
 #EndRegion
@@ -890,6 +969,7 @@ function New-ReplicationFabric()
     $defaultNamePrefix = "asr-a2a-policy-"
     $sourceFabric = $targetFabric = $null
     $sourceJob = $targetJob = $null
+    $isZoneToZone = $sourceLocation -like $targetLocation
 
     $fabrics = Get-ASRFabric
 
@@ -911,7 +991,7 @@ function New-ReplicationFabric()
         $sourceJob = New-ASRFabric -Azure -Name $sourceFabricName -Location $sourceLocation
     }
 
-    if ($null -eq $targetFabric)
+    if ((-not $isZoneToZone) -and ($null -eq $targetFabric))
     {
         $targetFabricName = $defaultNamePrefix + $targetLocation
 
@@ -943,8 +1023,15 @@ function New-ReplicationProtectionContainer()
     $containerSuffix = "-container"
     $isNewSourceContainer = $isNewTargetContainer = $false
     $sourceJob = $targetJob = $null
+    $isZoneToZone = $sourceLocation -like $targetLocation
     $sourceContainerName = $sourceFabric.Name + $containerSuffix
     $targetContainerName = $targetFabric.Name + $containerSuffix
+
+    if ($isZoneToZone)
+    {
+        $sourceContainerName += "1"
+        $targetContainerName += "2"
+    }
 
     $sourceContainer = Get-ASRProtectionContainer -Name $sourceContainerName -Fabric $sourceFabric `
         -ErrorAction Ignore
@@ -1030,6 +1117,7 @@ function New-ReplicationProtectionContainerMapping()
     $isNewSourceTargetMapping = $isNewTargetSourceMapping = $false
     $sourceTargetJob = $targetSourceJob = $null
     $sourceTargetMapping = $targetSourceMapping = $null
+    $isZoneToZone = $sourceLocation -like $targetLocation
 
     $containerMappings = $sourceContainer | Get-ASRProtectionContainerMapping
 
@@ -1055,6 +1143,13 @@ function New-ReplicationProtectionContainerMapping()
         $isNewSourceTargetMapping = $true
         $sourceTargetMappingName = $sourceLocation + "-" + $targetLocation + "-" + `
             $replicationPolicyName
+
+        if ($isZoneToZone)
+        {
+            $sourceTargetMappingName = $sourceLocation + "1-" + $targetLocation + "2-" + `
+                $replicationPolicyName
+        }
+
         $sourceTargetJob = New-ASRProtectionContainerMapping -Name $sourceTargetMappingName `
             -Policy $replicationPolicy -PrimaryProtectionContainer $sourceContainer `
             -RecoveryProtectionContainer $targetContainer
@@ -1069,6 +1164,13 @@ function New-ReplicationProtectionContainerMapping()
         $isNewTargetSourceMapping = $true
         $targetSourceMappingName = $targetLocation + "-" + $sourceLocation + "-" + `
             $replicationPolicyName
+
+        if ($isZoneToZone)
+        {
+            $targetSourceMappingName = $targetLocation + "2-" + $sourceLocation + "1-" + `
+                $replicationPolicyName
+        }
+
         $targetSourceJob = New-ASRProtectionContainerMapping -Name $targetSourceMappingName `
             -Policy $replicationPolicy -RecoveryProtectionContainer $sourceContainer `
             -PrimaryProtectionContainer $targetContainer
@@ -1166,8 +1268,15 @@ function New-ASRResources()
 {
     Write-Host -ForegroundColor Green "`nCreating new ASR resources."
 
+    $asrVaultLocation = $targetLocation
+
+    if (-not [string]::IsNullOrEmpty($vaultLocation))
+    {
+        $asrVaultLocation = $vaultLocation
+    }
+
     $vault, $vaultResourcegroup = Set-RecoveryServicesVaultConfiguration -Name $vaultName `
-        -ResourceGroupName $vaultResourceGroupName -Location $targetLocation
+        -ResourceGroupName $vaultResourceGroupName -Location $asrVaultLocation
     $sourceFabric, $targetFabric = New-ReplicationFabric
     $sourceContainer, $targetContainer = New-ReplicationProtectionContainer
     $replicationPolicy = New-ReplicationPolicy
@@ -1546,9 +1655,11 @@ function New-PolicyBasedReplicationSetup()
 
     Set-Context
     Confirm-ScriptParameters -SourceLocation ([ref]$sourceLocation) -TargetLocation `
-        ([ref]$targetLocation) -MsiLocation ([ref]$msiLocation) -CacheStorageAccountName `
-        ([ref]$cacheStorageAccountName) -TargetResourceGroupName ([ref]$targetResourceGroupName) `
-        -RecoveryNetworkName ([ref]$recoveryNetworkName) -AddressPrefix ([ref]$addressPrefix)
+        ([ref]$targetLocation) -MsiLocation ([ref]$msiLocation) -VaultLocation `
+        ([ref]$vaultLocation) -CacheStorageAccountName ([ref]$cacheStorageAccountName) `
+        -TargetResourceGroupName ([ref]$targetResourceGroupName) -RecoveryNetworkName `
+        ([ref]$recoveryNetworkName) -AddressPrefix ([ref]$addressPrefix) -TargetAvailabilityZone `
+        ([ref]$targetAvailabilityZone)
     Start-PrerequisiteResourceCreation
     $policyDefinition = New-PolicyDefinition
     $policyAssignment = New-PolicyAssignment
