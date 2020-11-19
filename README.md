@@ -1,9 +1,8 @@
-# policy-based-replication-pr
+# policy-based-replication
 
 ## summary
 
 Enabling DR at scale using Azure Policy.
-Private repo.
 
 ### policy-1.0
 
